@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ojg.memories_back.common.dto.request.auth.IdCheckRequestDto;
 import com.ojg.memories_back.common.dto.request.auth.SignInRequestDto;
 import com.ojg.memories_back.common.dto.request.auth.SignUpRequestDto;
-import com.ojg.memories_back.common.dto.response.auth.ResponseDto;
+import com.ojg.memories_back.common.dto.response.ResponseDto;
 import com.ojg.memories_back.common.dto.response.auth.SignInResponseDto;
 import com.ojg.memories_back.service.AuthService;
 

@@ -5,15 +5,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ojg.memories_back.common.dto.request.diary.PatchDiaryRequestDto;
 import com.ojg.memories_back.common.dto.request.diary.PostDiaryRequestDto;
-import com.ojg.memories_back.common.dto.response.auth.ResponseDto;
+import com.ojg.memories_back.common.dto.response.ResponseDto;
 import com.ojg.memories_back.common.dto.response.diary.GetDiaryResponseDto;
+import com.ojg.memories_back.common.dto.response.diary.GetEmpathyResponseDto;
 import com.ojg.memories_back.common.dto.response.diary.GetMyDiaryResponseDto;
 import com.ojg.memories_back.handler.OAuth2SuccessHandler;
+import com.ojg.memories_back.repository.EmpathyRepository;
 import com.ojg.memories_back.service.DiarySerivce;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,36 +26,36 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 
 @RestController
 @RequestMapping("/api/v1/diary")
 @RequiredArgsConstructor
 public class DiaryController {
-
-    private final OAuth2SuccessHandler OAuth2SuccessHandler;
   
-  private final DiarySerivce diarySerivce;
+  private final DiarySerivce diaryService;
 
 
 
   @PostMapping({"","/"})
   public ResponseEntity<ResponseDto> postDiary(@RequestBody @Valid PostDiaryRequestDto requestBody, 
   @AuthenticationPrincipal String userId) {
-      ResponseEntity<ResponseDto> response = diarySerivce.postDiary(requestBody, userId);
+      ResponseEntity<ResponseDto> response = diaryService.postDiary(requestBody, userId);
       return response;
   }
   
 
   @GetMapping("/my")
   public ResponseEntity<? super GetMyDiaryResponseDto> getMyDiary(@AuthenticationPrincipal String userId) {
-    ResponseEntity<? super GetMyDiaryResponseDto> response = diarySerivce.getMyDiary(userId);
+    ResponseEntity<? super GetMyDiaryResponseDto> response = diaryService.getMyDiary(userId);
     return response;
   }
   
   @GetMapping("/{diaryNumber}")
   public ResponseEntity<? super GetDiaryResponseDto> getDiary(@PathVariable("diaryNumber") Integer diaryNumber) {
-      ResponseEntity<? super GetDiaryResponseDto> response = diarySerivce.getDiary(diaryNumber);
+      ResponseEntity<? super GetDiaryResponseDto> response = diaryService.getDiary(diaryNumber);
       return response;
   }
   
@@ -62,7 +65,7 @@ public class DiaryController {
     @PathVariable("diaryNumber") Integer diaryNumber,
     @AuthenticationPrincipal String userId
   ){
-    ResponseEntity<ResponseDto> response = diarySerivce.patchDiary(requestBody, diaryNumber, userId);
+    ResponseEntity<ResponseDto> response = diaryService.patchDiary(requestBody, diaryNumber, userId);
     return response;
   }
 
@@ -72,7 +75,23 @@ public class DiaryController {
     @PathVariable("diaryNumber") Integer diaryNumber,
     @AuthenticationPrincipal String userId
   ){
-    ResponseEntity<ResponseDto> response = diarySerivce.deleteDiary(diaryNumber, userId);
+    ResponseEntity<ResponseDto> response = diaryService.deleteDiary(diaryNumber, userId);
     return response;
   }
+
+
+  @PutMapping("{diaryNumber}/empathy")
+  public ResponseEntity<ResponseDto> putEmpathy(@PathVariable("diaryNumber") Integer diaryNumber, @AuthenticationPrincipal String userId) {
+    ResponseEntity<ResponseDto> response = diaryService.putEmpathy(diaryNumber,userId);
+    return response;
+    
+  }
+
+  @GetMapping("/{diaryNumber}/empathy")
+  public ResponseEntity<? super GetEmpathyResponseDto> getEmpathy(@PathVariable("diaryNumber") Integer diaryNumber){
+    ResponseEntity<? super GetEmpathyResponseDto> response = diaryService.getEmpathy(diaryNumber);
+    return response;
+  }
+  
+  
 }

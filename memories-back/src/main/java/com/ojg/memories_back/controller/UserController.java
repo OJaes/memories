@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ojg.memories_back.common.dto.request.user.PatchUserRequestDto;
-import com.ojg.memories_back.common.dto.response.auth.ResponseDto;
+import com.ojg.memories_back.common.dto.response.ResponseDto;
 import com.ojg.memories_back.common.dto.response.user.GetSignInUserResponseDto;
 import com.ojg.memories_back.service.UserService;
 

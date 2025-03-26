@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.ojg.memories_back.common.dto.request.user.PatchUserRequestDto;
-import com.ojg.memories_back.common.dto.response.auth.ResponseDto;
+import com.ojg.memories_back.common.dto.response.ResponseDto;
 import com.ojg.memories_back.common.entity.UserEntity;
 import com.ojg.memories_back.repository.UserRepository;
 import com.ojg.memories_back.common.dto.response.user.GetSignInUserResponseDto;

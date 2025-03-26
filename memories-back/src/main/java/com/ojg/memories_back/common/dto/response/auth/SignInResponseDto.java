@@ -3,6 +3,8 @@ package com.ojg.memories_back.common.dto.response.auth;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.ojg.memories_back.common.dto.response.ResponseDto;
+
 import lombok.Getter;
 
 @Getter

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import com.ojg.memories_back.common.dto.request.auth.IdCheckRequestDto;
 import com.ojg.memories_back.common.dto.request.auth.SignInRequestDto;
 import com.ojg.memories_back.common.dto.request.auth.SignUpRequestDto;
-import com.ojg.memories_back.common.dto.response.auth.ResponseDto;
+import com.ojg.memories_back.common.dto.response.ResponseDto;
 import com.ojg.memories_back.common.dto.response.auth.SignInResponseDto;
 import com.ojg.memories_back.common.entity.UserEntity;
 import com.ojg.memories_back.provider.JwtProvider;
