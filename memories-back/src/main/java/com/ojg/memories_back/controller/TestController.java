@@ -19,7 +19,6 @@ import com.ojg.memories_back.common.dto.response.test.GetRecentlyConcentrationRe
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController

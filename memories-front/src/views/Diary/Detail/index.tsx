@@ -1,14 +1,67 @@
-import React, { useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 
 import './style.css';
 import { Feeling, Weather } from 'src/types/aliases';
-import { deleteDiaryRequest, getDiaryRequest } from 'src/apis';
+import {
+    deleteDiaryRequest,
+    getCommentRequest,
+    getDiaryRequest,
+    getEmpathyRequest,
+    postCommentRequest,
+    putEmpathyRequest,
+} from 'src/apis';
 import { useCookies } from 'react-cookie';
 import { ACCESS_TOKEN, DIARY_ABSOLUTE_PATH, DIARY_UPDATE_ABSOLUTE_PATH } from 'src/constants';
 import { useNavigate, useParams } from 'react-router';
-import { GetDiaryResponseDto } from 'src/apis/dto/response/diary';
+import { GetCommentResponseDto, GetDiaryResponseDto, GetEmpathyResponseDto } from 'src/apis/dto/response/diary';
 import { ResponseDto } from 'src/apis/dto/response';
 import { useSignInUserStore } from 'src/stores';
+import { Comment } from 'src/types/interfaces';
+import { PostCommentRequestDto } from 'src/apis/dto/request/diary';
+
+import dayjs from 'dayjs';
+
+const SECOND_LIMIT = 60;
+const MINUTE_LIMIT = SECOND_LIMIT * 60;
+const HOUR_LIMIT = MINUTE_LIMIT * 24;
+
+// interface: 댓글 컴포넌트 속성 //
+interface CommentItemProps {
+    commentItem: Comment;
+}
+
+// component: 댓글 컴포넌트 //
+function CommentItem({ commentItem }: CommentItemProps) {
+    const { commentWriterId, commentWriteDate, comment } = commentItem;
+
+    // variable: 현재 시간 //
+    const now = dayjs();
+    // variable: 작성 시간 //
+    const writeDate = dayjs(commentWriteDate);
+    // variable: 초 단위 작성 시간 차이 //
+    const diffWriteDate = now.diff(writeDate, 'second');
+    // variable: 작성 시간 문자열 //
+    const writeDateText =
+        diffWriteDate < SECOND_LIMIT
+            ? diffWriteDate + ' 초'
+            : diffWriteDate < MINUTE_LIMIT
+            ? Math.floor(diffWriteDate / SECOND_LIMIT) + ' 분'
+            : diffWriteDate < HOUR_LIMIT
+            ? Math.floor(diffWriteDate / MINUTE_LIMIT) + ' 시간'
+            : Math.floor(diffWriteDate / HOUR_LIMIT) + ' 일';
+
+    // render: 댓글 컴포넌트 렌더링 //
+    return (
+        <div className="comment-box">
+            <div className="title-box">
+                <div className="title">{commentWriterId}</div>
+                <div className="divider"></div>
+                <div className="write-date">{writeDateText} 전</div>
+            </div>
+            <div className="comment">{comment}</div>
+        </div>
+    );
+}
 
 // component: 일기 상세 화면 컴포넌트 //
 export default function DiaryDetail() {
@@ -28,6 +81,14 @@ export default function DiaryDetail() {
     const [feeling, setFeeling] = useState<Feeling | ''>('');
     const [title, setTitle] = useState<string>('');
     const [content, setContent] = useState<string>('');
+
+    // state: 댓글 상태 //
+    const [comment, setComment] = useState<string>('');
+
+    // state: 공감한 사용자 리스트 상태 //
+    const [empathies, setEmpathies] = useState<string[]>([]);
+    // state: 댓글 리스트 상태 //
+    const [comments, setComments] = useState<Comment[]>([]);
 
     // variable: access token //
     const accessToken = cookies[ACCESS_TOKEN];
@@ -59,6 +120,11 @@ export default function DiaryDetail() {
             : feeling === '분노'
             ? 'feeling-icon angry'
             : '';
+
+    // variable: 공감 여부 //
+    const isEmpathize = empathies.includes(userId);
+    // variable: 공감 클래스 //
+    const empathyClass = isEmpathize ? 'icon empathy' : 'icon empathy-empty';
 
     // function: 네비게이터 함수 //
     const navigator = useNavigate();
@@ -92,6 +158,46 @@ export default function DiaryDetail() {
         setContent(content);
     };
 
+    // function: get empathy response 처리 함수 //
+    const getEmpathyResponse = (responseBody: GetEmpathyResponseDto | ResponseDto | null) => {
+        const message = !responseBody
+            ? '서버에 문제가 있습니다.'
+            : responseBody.code === 'DBE'
+            ? '서버에 문제가 있습니다.'
+            : responseBody.code === 'AF'
+            ? '인증에 실패했습니다.'
+            : '';
+
+        const isSuccess = responseBody !== null && responseBody.code === 'SU';
+        if (!isSuccess) {
+            alert(message);
+            return;
+        }
+
+        const { empathies } = responseBody as GetEmpathyResponseDto;
+        setEmpathies(empathies);
+    };
+
+    // function: get comment response 처리 함수 //
+    const getCommentResponse = (responseBody: GetCommentResponseDto | ResponseDto | null) => {
+        const message = !responseBody
+            ? '서버에 문제가 있습니다.'
+            : responseBody.code === 'DBE'
+            ? '서버에 문제가 있습니다.'
+            : responseBody.code === 'AF'
+            ? '인증에 실패했습니다.'
+            : '';
+
+        const isSuccess = responseBody !== null && responseBody.code === 'SU';
+        if (!isSuccess) {
+            alert(message);
+            return;
+        }
+
+        const { comments } = responseBody as GetCommentResponseDto;
+        setComments(comments);
+    };
+
     // function: delete diary response 처리 함수 //
     const deleteDiaryResponse = (responseBody: ResponseDto | null) => {
         const message = !responseBody
@@ -116,6 +222,53 @@ export default function DiaryDetail() {
         navigator(DIARY_ABSOLUTE_PATH);
     };
 
+    // function: put empathy response 처리 함수 //
+    const putEmpathyResponse = (responseBody: ResponseDto | null) => {
+        const message = !responseBody
+            ? '서버에 문제가 있습니다.'
+            : responseBody.code === 'DBE'
+            ? '서버에 문제가 있습니다.'
+            : responseBody.code === 'AF'
+            ? '인증에 실패했습니다.'
+            : '';
+
+        const isSuccess = responseBody !== null && responseBody.code === 'SU';
+        if (!isSuccess) {
+            alert(message);
+            return;
+        }
+
+        if (!diaryNumber || !accessToken) return;
+        getEmpathyRequest(diaryNumber, accessToken).then(getEmpathyResponse);
+    };
+
+    // function: post comment response 처리 함수 //
+    const postCommentResponse = (responseBody: ResponseDto | null) => {
+        const message = !responseBody
+            ? '서버에 문제가 있습니다.'
+            : responseBody.code === 'DBE'
+            ? '서버에 문제가 있습니다.'
+            : responseBody.code === 'AF'
+            ? '인증에 실패했습니다.'
+            : '';
+
+        const isSuccess = responseBody !== null && responseBody.code === 'SU';
+        if (!isSuccess) {
+            alert(message);
+            return;
+        }
+
+        setComment('');
+        if (!diaryNumber || !accessToken) return;
+        getCommentRequest(diaryNumber, accessToken).then(getCommentResponse);
+    };
+
+    // event handler: 댓글 변경 이벤트 처리 //
+    const onCommentChangeHandler = (event: ChangeEvent<HTMLTextAreaElement>) => {
+        const { value } = event.target;
+        setComment(value);
+    };
+
     // event handler: 삭제 버튼 클릭 이벤트 처리 //
     const onDeleteClickHandler = () => {
         if (!diaryNumber || !accessToken) return;
@@ -131,6 +284,22 @@ export default function DiaryDetail() {
         navigator(DIARY_UPDATE_ABSOLUTE_PATH(diaryNumber));
     };
 
+    // event handler: 공감 버튼 클릭 이벤트 처리 //
+    const onEmpathyClickHandler = () => {
+        if (!diaryNumber || !accessToken) return;
+        putEmpathyRequest(diaryNumber, accessToken).then(putEmpathyResponse);
+    };
+
+    // event handler: 댓글 작성 클릭 이벤트 처리 //
+    const onPostCommentClickHandler = () => {
+        if (!accessToken || !diaryNumber || !comment.trim()) return;
+
+        const requestBody: PostCommentRequestDto = {
+            comment,
+        };
+        postCommentRequest(requestBody, diaryNumber, accessToken).then(postCommentResponse);
+    };
+
     // effect: 컴포넌트 로드시 실행할 함수 //
     useEffect(() => {
         if (!accessToken) return;
@@ -139,15 +308,9 @@ export default function DiaryDetail() {
             return;
         }
         getDiaryRequest(diaryNumber, accessToken).then(getDiaryResponse);
+        getEmpathyRequest(diaryNumber, accessToken).then(getEmpathyResponse);
+        getCommentRequest(diaryNumber, accessToken).then(getCommentResponse);
     }, []);
-
-    // effect: 로그인 유저 아이디와 작성자 아이디가 변경될시 실행할 함수 //
-    useEffect(() => {
-        if (writerId && userId && writerId !== userId) {
-            alert('권한이 없습니다.');
-            navigator(DIARY_ABSOLUTE_PATH);
-        }
-    }, [writerId, userId]);
 
     // render: 일기 상세 화면 컴포넌트 렌더링 //
     return (
@@ -188,12 +351,37 @@ export default function DiaryDetail() {
                         />
                         <hr />
                     </div>
-                    <div className="button-box">
-                        <div className="button middle error" onClick={onDeleteClickHandler}>
-                            삭제
+                    {writerId === userId && (
+                        <div className="button-box">
+                            <div className="button middle error" onClick={onDeleteClickHandler}>
+                                삭제
+                            </div>
+                            <div className="button middle second" onClick={onUpdateClickHandler}>
+                                수정
+                            </div>
                         </div>
-                        <div className="button middle second" onClick={onUpdateClickHandler}>
-                            수정
+                    )}
+                    <div className="sub-container">
+                        <div className="header">
+                            <div className="sub-box">
+                                <div className={empathyClass} onClick={onEmpathyClickHandler} />
+                                {empathies.length}
+                            </div>
+                            <div className="sub-box">
+                                <div className="icon comment" />
+                                {comments.length}
+                            </div>
+                        </div>
+                        <div className="body">
+                            {comments.map((commentItem, index) => (
+                                <CommentItem key={index} commentItem={commentItem} />
+                            ))}
+                        </div>
+                        <div className="footer">
+                            <textarea value={comment} onChange={onCommentChangeHandler} />
+                            <div className="button second stratch" onClick={onPostCommentClickHandler}>
+                                작성
+                            </div>
                         </div>
                     </div>
                 </div>

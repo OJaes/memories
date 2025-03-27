@@ -11,7 +11,6 @@ import com.ojg.memories_back.common.entity.EmpathyEntity;
 
 import lombok.Getter;
 
-
 @Getter
 public class GetEmpathyResponseDto extends ResponseDto {
   

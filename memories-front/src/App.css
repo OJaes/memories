@@ -41,6 +41,10 @@ body {
 .button:hover {
     opacity: 0.85;
 }
+.ubtton.stretch {
+    align-self: stretch;
+    height: 100%;
+}
 
 .button.fullwidth {
     box-sizing: border-box;
