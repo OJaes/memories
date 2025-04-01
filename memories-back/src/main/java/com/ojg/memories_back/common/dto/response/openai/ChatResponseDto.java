@@ -13,6 +13,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatResponseDto {
+public class    ChatResponseDto {
     private List<GptChoiceVo> choices;
 }
