@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.7d6571e9.css",
+    "main.js": "/static/js/main.05c3eac2.js",
+    "static/media/Pretendard.ttf": "/static/media/Pretendard.c89dc775feed56569658.ttf",
+    "static/media/auth-side-image.png": "/static/media/auth-side-image.2e2cc9fae69b74e80071.png",
+    "static/media/default-profile.png": "/static/media/default-profile.dc3f3be43bf915f0d62d.png",
+    "index.html": "/index.html",
+    "main.7d6571e9.css.map": "/static/css/main.7d6571e9.css.map",
+    "main.05c3eac2.js.map": "/static/js/main.05c3eac2.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.7d6571e9.css",
+    "static/js/main.05c3eac2.js"
+  ]
+}
